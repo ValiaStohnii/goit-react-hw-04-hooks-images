@@ -6,7 +6,7 @@ import imageApi from '../services/image-api';
 import './ImageGallery.css';
 
 export default function ImageGallery({ onImageClick, imageName }) {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState([]);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState('idle');
   const [page, setPage] = useState(1);
@@ -15,11 +15,32 @@ export default function ImageGallery({ onImageClick, imageName }) {
     if (!imageName) {
       return;
     }
+
+    setStatus('pending');
+    imageApi
+      .fetchImage(imageName, 1)
+      .then(({ hits }) => {
+        setImage(hits);
+        setStatus('resolved');
+      })
+      .catch(error => {
+        setError(error);
+        setStatus('rejected');
+      });
+  }, [imageName]);
+
+  useEffect(() => {
+    if (!imageName) {
+      return;
+    }
+    if (page === 1) {
+      return;
+    }
     setStatus('pending');
     imageApi
       .fetchImage(imageName, page)
-      .then(image => {
-        setImage(image);
+      .then(({ hits }) => {
+        setImage(prev => [...prev, ...hits]);
         setStatus('resolved');
       })
       .catch(error => {
@@ -45,7 +66,7 @@ export default function ImageGallery({ onImageClick, imageName }) {
     return (
       <div>
         <ul className="ImageGallery">
-          {image.hits.map(entry => (
+          {image.map(entry => (
             <ImageGalleryItem
               key={entry.id}
               imageName={entry.tags}
