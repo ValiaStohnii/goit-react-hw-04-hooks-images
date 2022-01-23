@@ -11,11 +11,11 @@ export default function App() {
   const [selectIMG, setSelectIMG] = useState('');
 
   const toggleShowModal = () => {
-    setShowModal(state => !state.showModal);
+    setShowModal(state => !state);
   };
 
   const toggleModal = ({ largeIMG }) => {
-    setShowModal(state => !state.showModal);
+    setShowModal(state => !state);
     setSelectIMG(largeIMG);
   };
 
